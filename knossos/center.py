@@ -42,6 +42,8 @@ LANGUAGES = {
     'en': 'English'
 }
 
+MAX_JOYSTICKS = 4
+
 app = None
 main_win = None
 fs2_watcher = None
@@ -80,24 +82,7 @@ settings = {
         'guid': None,
         'id': 99999
     },
-    'joysticks': {
-        'joy0': {
-            'name': '',
-            'guid': ''
-        },
-        'joy1': {
-            'name': '',
-            'guid': ''
-        },
-        'joy2': {
-            'name': '',
-            'guid': ''
-        },
-        'joy3': {
-            'name': '',
-            'guid': ''
-        }
-    },
+    'joysticks': { 'joy' + str(i): { 'name': '', 'guid': '' } for i in range(0, MAX_JOYSTICKS) },
     'show_fs2_mods_without_retail': False,
     'debug_log': False,
     'show_fso_builds': False

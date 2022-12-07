@@ -16,8 +16,8 @@ export default {
         knossos: {},
         fso: {},
         old_settings: {},
-        joysticks: [],
-        joysticks_loading: false,
+        joylist: [],
+        joylist_loading: false,
 
         neb_logged_in: false,
         neb_user: '',
@@ -41,10 +41,10 @@ export default {
             this.loading = false;
         });
 
-        this.joysticks_loading = true;
+        this.joylist_loading = true;
         call_async(fs2mod.getJoysticks, (joysticks) => {
-            this.joysticks = joysticks;
-            this.joysticks_loading = false;
+            this.joylist = joysticks;
+            this.joylist_loading = false;
         });
     },
 
@@ -60,9 +60,9 @@ export default {
             // use it as a fallback however and need to keep track of it to an extent.
             // So try to find guid in currently connected joysticks and set the device
             // index to match.
-            for (let j = 0; j < 4; ++j) {
-                if (this.fso[`joy${j}_guid`]) {
-                    const joy = this.joysticks.find(item => item[0] === this.fso[`joy${j}_guid`]);
+            for (let j = 0; j < this.fso.joysticks.length; ++j) {
+                if (this.fso.joysticks[j].guid) {
+                    const joy = this.joylist.find(item => item[0] === this.fso.joysticks[j].guid);
 
                     // update index if found, otherwise we just keep the existing value
                     if (!joy) continue;
@@ -72,7 +72,7 @@ export default {
                     // skip if item is a previously configured entry
                     if (!Number.isInteger(id) || id == -1) continue;
 
-                    this.fso[`joy${j}_id`] = id;
+                    this.fso.joysticks[j].id = id;
 
                     // also save this to knossos config so that we can still see what
                     // joystick is configured even when not currently connected
@@ -80,7 +80,7 @@ export default {
                     this.knossos.joysticks[`joy${j}`].guid = guid;
                 } else {
                     // 'No Joystick'
-                    this.fso[`joy${j}_id`] = '';
+                    this.fso.joysticks[j].id = '';
 
                     this.knossos.joysticks[`joy${j}`].name = '';
                     this.knossos.joysticks[`joy${j}`].guid = '';
@@ -167,10 +167,10 @@ export default {
         isJoySelected(exclude_id, guid) {
             let selected = false;
 
-            for (let j = 0; j < 4; ++j) {
+            for (let j = 0; j < this.fso.joysticks.length; ++j) {
                 if (j == exclude_id) continue;
 
-                if (guid == this.fso[`joy${j}_guid`]) {
+                if (guid == this.fso.joysticks[j].guid) {
                     selected = true;
                     break;
                 }
@@ -446,60 +446,38 @@ export default {
         <div class="col-sm-6">
             <kn-drawer label="Joystick">
                 <div class="settings-exp drawer-exp">Setup and calibrate your joystick</div>
-                <div class="form-group">
-                    <label class="col-sm-4 control-label">Joy-0:</label>
-                    <div class="col-sm-8">
-                        <div v-if="joysticks_loading">Loading...</div>
-                        <select v-else v-model="fso.joy0_guid">
-                            <option value="">None / Autodetect</option>
-                            <option v-for="joy in joysticks" :value="joy[0]" :key="joy[0]" v-bind:disabled="isJoySelected(0, joy[0])">{{ joy[2] }}</option>
-                        </select>
+                <template v-for="(joystick, idx) in fso.joysticks">
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">Joy-{{ idx }}:</label>
+                        <div class="col-sm-8">
+                            <div v-if="joylist_loading">Loading...</div>
+                            <select v-else v-model="fso.joysticks[idx].guid">
+                                <option value="">None / Autodetect</option>
+                                <option v-for="joy in joylist" :value="joy[0]" :key="joy[0]" v-bind:disabled="isJoySelected(idx, joy[0])">{{ joy[2] }}</option>
+                            </select>
+                        </div>
                     </div>
-                </div>
-                <div class="form-group">
-                    <div class="col-sm-4 col-sm-offset-4">
-                        Force Feedback:
-                        <input type="checkbox" v-model="fso.joystick_ff">
-                    </div>
-                    <div class="col-sm-4">
-                        Directional Hit:
-                        <input type="checkbox" v-model="fso.joystick_enable_hit">
-                    </div>
-                    <div class="col-sm-8 col-sm-offset-4">
-                        Strength:
-                        <input type="range" min="0" max="100" style="display: inline-block; width: 70%; vertical-align: middle;" v-model="fso.joystick_ff_strength">
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label class="col-sm-4 control-label">Joy-1:</label>
-                    <div class="col-sm-8">
-                        <div v-if="joysticks_loading">Loading...</div>
-                        <select v-else v-model="fso.joy1_guid">
-                            <option value="">None / Autodetect</option>
-                            <option v-for="joy in joysticks" :value="joy[0]" :key="joy[0]" v-bind:disabled="isJoySelected(1, joy[0])">{{ joy[2] }}</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label class="col-sm-4 control-label">Joy-2:</label>
-                    <div class="col-sm-8">
-                        <div v-if="joysticks_loading">Loading...</div>
-                        <select v-else v-model="fso.joy2_guid">
-                            <option value="">None / Autodetect</option>
-                            <option v-for="joy in joysticks" :value="joy[0]" :key="joy[0]" v-bind:disabled="isJoySelected(2, joy[0])">{{ joy[2] }}</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label class="col-sm-4 control-label">Joy-3:</label>
-                    <div class="col-sm-8">
-                        <div v-if="joysticks_loading">Loading...</div>
-                        <select v-else v-model="fso.joy3_guid">
-                            <option value="">None / Autodetect</option>
-                            <option v-for="joy in joysticks" :value="joy[0]" :key="joy[0]" v-bind:disabled="isJoySelected(3, joy[0])">{{ joy[2] }}</option>
-                        </select>
-                    </div>
-                </div>
+                    <!--
+                        haptic/force feedback is currently only supported on the first joystick
+                        so let's only show the options for it on the first entry
+                    -->
+                    <template v-if="(idx == 0)">
+                        <div class="form-group">
+                            <div class="col-sm-4 col-sm-offset-4">
+                                Force Feedback:
+                                <input type="checkbox" v-model="fso.joystick_ff">
+                            </div>
+                            <div class="col-sm-4">
+                                Directional Hit:
+                                <input type="checkbox" v-model="fso.joystick_enable_hit">
+                            </div>
+                            <div class="col-sm-8 col-sm-offset-4">
+                                Strength:
+                                <input type="range" min="0" max="100" style="display: inline-block; width: 70%; vertical-align: middle;" v-model="fso.joystick_ff_strength">
+                            </div>
+                        </div>
+                    </template>
+                </template>
             </kn-drawer>
 
             <kn-drawer label="Nebula">

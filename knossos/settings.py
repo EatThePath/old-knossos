@@ -158,19 +158,20 @@ def get_settings():
     # aa = section.get('OGL_AntiAliasSamples', None)
 
     # joysticks
-    joy0_id = section.get('Joy0ID', '')
-    joy0_guid = section.get('Joy0GUID', '')
-    joy1_id = section.get('Joy1ID', '')
-    joy1_guid = section.get('Joy1GUID', '')
-    joy2_id = section.get('Joy2ID', '')
-    joy2_guid = section.get('Joy2GUID', '')
-    joy3_id = section.get('Joy3ID', '')
-    joy3_guid = section.get('Joy3GUID', '')
+    joysticks = []
+
+    for i in range(0, center.MAX_JOYSTICKS):
+        joy_guid = section.get('Joy' + str(i) + 'GUID', '')
+        joy_id = section.get('Joy' + str(i) + 'ID', '')
+        joy_id = int(joy_id) if util.is_number(joy_id) else ''
+
+        joysticks.append({ 'guid': joy_guid, 'id': joy_id })
 
     # if joy0 is not set then check fallback
-    if not joy0_guid:
-        joy0_id = section.get('CurrentJoystick', None)
-        joy0_guid = section.get('CurrentJoystickGUID', None)
+    if not joysticks[0]['guid']:
+        joysticks[0]['guid'] = section.get('CurrentJoystickGUID', '')
+        joy_id = section.get('CurrentJoystick', '')
+        joysticks[0]['id'] = int(joy_id) if util.is_number(joy_id) else ''
 
     joystick_ff = section.get('EnableJoystickFF', True)
     joystick_enable_hit = section.get('EnableHitEffect', True)
@@ -268,14 +269,7 @@ def get_settings():
     fso['joystick_enable_hit'] = joystick_enable_hit == '1'
     fso['joystick_ff_strength'] = joystick_ff_strength
 
-    fso['joy0_guid'] = joy0_guid
-    fso['joy0_id'] = int(joy0_id) if util.is_number(joy0_id) else ''
-    fso['joy1_guid'] = joy1_guid
-    fso['joy1_id'] = int(joy1_id) if util.is_number(joy1_id) else ''
-    fso['joy2_guid'] = joy2_guid
-    fso['joy2_id'] = int(joy2_id) if util.is_number(joy2_id) else ''
-    fso['joy3_guid'] = joy3_guid
-    fso['joy3_id'] = int(joy3_id) if util.is_number(joy3_id) else ''
+    fso['joysticks'] = joysticks
 
     # Speech
     fso['speech_vol'] = speech_vol
@@ -358,13 +352,13 @@ def save_fso_settings(new_settings):
         section = config['Default']
 
         # joystick
-        for i in range(0, 4):
-            section['Joy' + str(i) + 'GUID'] = new_settings['joy' + str(i) + '_guid']
-            section['Joy' + str(i) + 'ID'] = new_settings['joy' + str(i) + '_id']
+        for i in range(0, center.MAX_JOYSTICKS):
+            section['Joy' + str(i) + 'GUID'] = new_settings['joysticks'][i]['guid']
+            section['Joy' + str(i) + 'ID'] = new_settings['joysticks'][i]['id']
 
         # also save joy0 in old format
-        section['CurrentJoystick'] = new_settings['joy0_id']
-        section['CurrentJoystickGUID'] = new_settings['joy0_guid']
+        section['CurrentJoystick'] = new_settings['joysticks'][0]['id']
+        section['CurrentJoystickGUID'] = new_settings['joysticks'][0]['guid']
 
         section['EnableJoystickFF'] = 1 if new_settings['joystick_ff'] else 0
         section['EnableHitEffect'] = 1 if new_settings['joystick_enable_hit'] else 0
