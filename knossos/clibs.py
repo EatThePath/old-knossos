@@ -250,7 +250,7 @@ def init_sdl():
             sdl.SDL_QuitSubSystem(SDL_INIT_JOYSTICK)
 
             # add previously configured joysticks to list if they aren't currently connected
-            for item in [center.settings['joysticks'][x] for x in center.settings['joysticks']]:
+            for _,item in center.settings['joysticks'].items():
                 if item['guid'] and item['name']:
                     if item['guid'] not in [joy[0] for joy in joys]:
                         joys.append((item['guid'], -1, item['name']))
