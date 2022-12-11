@@ -15,6 +15,12 @@
 
 from __future__ import absolute_import, print_function
 import sys
+import multiprocessing
+
+# needed to work properly on windows (due to cpuinfo)
+# NOTE: must be first thing executed here
+if __name__ == '__main__':
+    multiprocessing.freeze_support()
 
 if __package__ is None and not hasattr(sys, 'frozen'):
     import os.path
