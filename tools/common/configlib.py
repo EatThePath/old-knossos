@@ -138,7 +138,7 @@ def quote(s):
     if not s:
         return "''"
 
-    if _find_unsafe(s) is None or s in ('$in', '$out'):
+    if _find_unsafe(s) is None or s in ('$in', '$out', '$$ARGS'):
         return s
 
     # use single quotes, and put single quotes into double quotes

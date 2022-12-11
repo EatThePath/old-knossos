@@ -178,10 +178,10 @@ with open('build.ninja', 'w') as stream:
     n.rule('dist', py_script('setup.py', setup_args), 'SDIST', pool='console')
     n.build('dist', 'dist', 'resources')
 
-    n.rule('run', py_script('knossos/__main__.py'), 'RUN', pool='console')
+    n.rule('run', py_script('knossos/__main__.py', ['$$ARGS']), 'RUN', pool='console')
     n.build('run', 'run', 'resources')
 
-    n.rule('debug', cmdenv(py_script('knossos/__main__.py'), {'KN_DEBUG': 1, 'QTWEBENGINE_REMOTE_DEBUGGING': 4006}), 'DEBUG', pool='console')
+    n.rule('debug', cmdenv(py_script('knossos/__main__.py', ['$$ARGS']), {'KN_DEBUG': 1, 'QTWEBENGINE_REMOTE_DEBUGGING': 4006}), 'DEBUG', pool='console')
     n.build('debug', 'debug', 'resources')
 
     if sys.platform == 'win32':
