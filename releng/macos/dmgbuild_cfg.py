@@ -34,7 +34,7 @@ format = 'UDBZ'
 
 # Volume size (must be large enough for your files)
 kn_size = subprocess.check_output(['du', '-sm', 'dist/Knossos.app'])
-size = defines.get('size', '%dM' % (int(kn_size.split()[0]) + 2))
+size = defines.get('size', '%dM' % (int(kn_size.split()[0]) + 10))
 
 # Files to include
 files = [ application ]
