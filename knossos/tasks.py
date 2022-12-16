@@ -127,7 +127,7 @@ class FetchTask(progress.MultistepTask):
                         os.unlink(dest_path + '.tmp')
 
                 with open(dest_path, 'r') as dest:
-                    progress.update(1.0, 'loading...')
+                    progress.update(0.9, 'loading, please wait...')
                     data.parse(dest.read())
 
                 self._public = data
