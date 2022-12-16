@@ -95,7 +95,7 @@ class FetchTask(progress.MultistepTask):
                         if result == 304 and not center.mods.empty():
                             return
                         elif result:
-                            self._has_update = True
+                            self._has_update = result != 304
                             data.base = link
                             break
                 else:
