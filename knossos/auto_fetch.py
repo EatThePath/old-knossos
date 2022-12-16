@@ -18,18 +18,21 @@ import time
 import logging
 
 from threading import Thread, Condition
-from knossos import center, tasks, qt
+from knossos import center, tasks, qt, util
 
 
 class AutoFetcher(Thread):
     _interval = 60 * 60  # = 1 hour
     _inactive_block = None
+    _manual = False
 
-    def __init__(self):
+    def __init__(self, interval_type='hourly'):
         super(AutoFetcher, self).__init__()
 
         self._inactive_block = Condition()
         self.daemon = True
+
+        self.set_interval(interval_type)
 
     def trigger(self):
         with self._inactive_block:
@@ -47,9 +50,21 @@ class AutoFetcher(Thread):
 
                 logging.debug('AutoFetcher resumed.')
 
+    def set_interval(self, interval_type):
+        interval = next((x[1] for x in center.FETCH_INTERVALS if x[0] == interval_type), None)
+
+        if util.is_number(interval):
+            # special handling of manual updates
+            if interval == 0:
+                self._manual = True
+                self._interval = 60 * 60
+            else:
+                self._manual = False
+                self._interval = interval
+
     @qt.run_in_qt
     def launch_task(self):
-        tasks.run_task(tasks.FetchTask())
+        tasks.run_task(tasks.FetchTask(self._manual))
 
         if center.settings['update_notify'] and '-dev' not in center.VERSION:
             tasks.run_task(tasks.CheckUpdateTask())

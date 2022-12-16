@@ -44,6 +44,13 @@ LANGUAGES = {
 
 MAX_JOYSTICKS = 4
 
+FETCH_INTERVALS = [
+    ('hourly',  60 * 60),
+    ('daily',   60 * 60 * 24),
+    ('manual',  0)
+]
+
+
 app = None
 main_win = None
 fs2_watcher = None
@@ -70,6 +77,7 @@ settings = {
     'api_override': None,
     'web_override': None,
     'update_notify': True,
+    'fetch_interval': 'hourly',
     'use_raven': True,
     'sdl2_path': None,
     'openal_path': None,
