@@ -44,11 +44,11 @@ LANGUAGES = {
 
 MAX_JOYSTICKS = 4
 
-FETCH_INTERVALS = [
-    ('hourly',  60 * 60),
-    ('daily',   60 * 60 * 24),
-    ('manual',  0)
-]
+FETCH_INTERVALS = {
+    'manual':  0, # special case, must be 0
+    'hourly':  60 * 60,
+    'daily':   60 * 60 * 24
+}
 
 
 app = None

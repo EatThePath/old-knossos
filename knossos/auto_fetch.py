@@ -51,16 +51,15 @@ class AutoFetcher(Thread):
                 logging.debug('AutoFetcher resumed.')
 
     def set_interval(self, interval_type):
-        interval = next((x[1] for x in center.FETCH_INTERVALS if x[0] == interval_type), None)
+        if not interval_type in center.FETCH_INTERVALS:
+            return
 
-        if util.is_number(interval):
-            # special handling of manual updates
-            if interval == 0:
-                self._manual = True
-                self._interval = 60 * 60
-            else:
-                self._manual = False
-                self._interval = interval
+        interval = center.FETCH_INTERVALS[interval_type]
+
+        # if set to manual then we still want to check for
+        # updates hourly, but just won't download them
+        self._manual = interval == 0
+        self._interval = interval if interval > 0 else 60 * 60
 
     @qt.run_in_qt
     def launch_task(self):
