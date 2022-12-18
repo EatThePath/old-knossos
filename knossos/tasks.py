@@ -1343,9 +1343,11 @@ class UploadTask(progress.MultistepTask):
                                 'checksum': None
                             })
 
-                            if not pkg.is_vp:
+                            if not pkg.is_vp and self._mod.mtype == 'mod':
                                 # VP conflicts don't cause problems and are most likely intentional
                                 # which is why we ignore them.
+                                # Tools and engine builds might have perfectly safe duplicate files,
+                                # and multi-package engines definitely will.
 
                                 if relpath in fnames:
                                     l = conflicts.setdefault(relpath, [fnames[relpath].name])
